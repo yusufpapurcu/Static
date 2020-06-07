@@ -25,6 +25,7 @@ func main() {
 		route.Run(bindAddr + ":" + port)
 	}
 }
+
 func setFlags() {
 	flag.BoolVar(&ofm, "ofm", false, "")
 	flag.StringVar(&port, "port", "8000", "")
@@ -43,7 +44,20 @@ func setFlags() {
 		log.Fatalf("Could not resolve the address to listen to: %s", bindAddr+":"+port)
 	}
 	dir = os.Args[len(os.Args)-1]
-
+	if ofm {
+		f, err := os.Open(dir)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+		info, err := f.Stat()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if info.IsDir() {
+			log.Fatal("You must specify file in one file mode")
+		}
+	}
 }
 
 func setupTree(r *gin.Engine, folder string) {
